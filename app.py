@@ -595,6 +595,13 @@ st.session_state.play_chime = False
 
 
 # ------------------------------------------------------------------ music (PERSISTENT)
+# Load the mp3 file as base64
+try:
+    with open(_find_file(BG_MUSIC_FILE), "rb") as music_file:
+        music_b64 = base64.b64encode(music_file.read()).decode("utf-8")
+except FileNotFoundError:
+    music_b64 = ""
+
 # Inject audio + button into the PARENT document so they survive iframe reruns.
 if music_b64:
     components.html(f"""
