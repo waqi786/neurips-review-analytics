@@ -69,7 +69,7 @@ st.markdown("""
     div[class*="st-key-lopt_"] button p::first-letter { color: var(--blue) !important; font-weight: 900 !important; font-size: 16px !important; }
     div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
 
-    /* ===== Center the category image (st.image) ===== */
+    /* Center the st.image component */
     [data-testid="stImage"] {
         display: flex !important;
         justify-content: center !important;
@@ -78,7 +78,7 @@ st.markdown("""
         margin: 0 auto !important;
     }
     [data-testid="stImage"] img {
-        max-width: 200px !important;
+        max-width: 180px !important;
         width: auto !important;
         border-radius: 12px !important;
         border: 1.5px solid var(--line) !important;
@@ -227,13 +227,13 @@ def _find_file(filename):
 
 
 @st.cache_data(show_spinner=False)
-def load_questions(version="v24"):
+def load_questions(version="v25"):
     with open(_find_file("questions.json"), "r") as f:
         return json.load(f)
 
 
-def load_images(version="v24"):
-    """Load images.json — NO cache, always fresh on every refresh."""
+def load_images(version="v25"):
+    """Load images.json — NO cache, always fresh."""
     try:
         path = _find_file("images.json")
         with open(path, "r", encoding="utf-8") as f:
@@ -243,8 +243,8 @@ def load_images(version="v24"):
         return {}
 
 
-questions = load_questions("v24")
-images_b64 = load_images("v24")
+questions = load_questions("v25")
+images_b64 = load_images("v25")
 
 for q in questions:
     q.setdefault("specificity", "Focused")
@@ -268,8 +268,26 @@ def esc(x):
     return html.escape(str(x))
 
 
+# ==================== TEMP DEBUG ====================
+with st.expander("🔧 Debug (for troubleshooting)", expanded=False):
+    st.write(f"**Images loaded:** {len(images_b64)}")
+    st.write(f"**Questions:** {len(questions)}")
+    if questions:
+        q0 = questions[0]
+        for opt in q0["options"]:
+            nid = opt.get("node_id")
+            st.write(f"- Option {opt['option_id']}: `{nid}` → {'✅ found' if nid in images_b64 else '❌ missing'}")
+    if images_b64:
+        sample_key = list(images_b64.keys())[0]
+        sample_val = images_b64[sample_key]
+        st.write(f"**Sample key:** `{sample_key}`")
+        st.write(f"**Sample value length:** {len(sample_val)} chars")
+        st.write(f"**Sample start:** `{sample_val[:40]}`")
+# ====================================================
+
+
 def show_image(opt):
-    """Show the category image — centered, reliable via st.image."""
+    """Show image centered using st.image (native, reliable)."""
     try:
         node_id = opt.get("node_id")
         if not node_id:
@@ -278,13 +296,13 @@ def show_image(opt):
         if not b64 or not isinstance(b64, str) or len(b64) < 100:
             return
 
-        # Strip data URI prefix if present
+        # Strip data URI prefix
         if b64.startswith("data:") and "," in b64[:64]:
             b64 = b64.split(",", 1)[1]
 
         img_bytes = base64.b64decode(b64)
 
-        # Center with st.columns — middle column gets the image
+        # Center via 3-column layout
         c1, c2, c3 = st.columns([1, 1, 1])
         with c2:
             st.image(img_bytes, use_container_width=True)
