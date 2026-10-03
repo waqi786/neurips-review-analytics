@@ -69,14 +69,31 @@ st.markdown("""
     div[class*="st-key-lopt_"] button p::first-letter { color: var(--blue) !important; font-weight: 900 !important; font-size: 16px !important; }
     div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
 
-    /* Center the st.image component */
-    [data-testid="stImage"] { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; margin: 0 auto !important; }
-    [data-testid="stImage"] img { max-width: 220px !important; width: auto !important; height: auto !important; aspect-ratio: 1 / 1 !important; object-fit: contain !important; border-radius: 12px !important; border: 1.5px solid var(--line) !important; display: block !important; margin: 0 auto !important; cursor: zoom-in !important; }
+    /* ---------- Custom thumbnail styling (raw HTML img, no native fullscreen button) ---------- */
+    .rv-thumb-wrap { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; margin: 6px auto 10px auto !important; }
+    img.rv-thumb {
+        max-width: 220px !important;
+        width: auto !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
+        object-fit: contain !important;
+        border-radius: 12px !important;
+        border: 1.5px solid var(--line) !important;
+        display: block !important;
+        margin: 0 auto !important;
+        cursor: zoom-in !important;
+        background: #ffffff !important;
+        transition: transform .15s ease, box-shadow .15s ease !important;
+        user-select: none !important;
+        -webkit-user-drag: none !important;
+    }
+    img.rv-thumb:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 8px 22px rgba(79,70,229,.18) !important;
+    }
 
-    /* ============ REMOVE STREAMLIT'S NATIVE FULLSCREEN BUTTON ENTIRELY ============ */
+    /* ---------- SAFETY NET: hide any stray Streamlit native fullscreen buttons ---------- */
     [data-testid="stImage"] button,
-    [data-testid="stImage"] > div > button,
-    [data-testid="stImage"] > div > div > button,
     [data-testid="StyledFullScreenButton"],
     button[title="View fullscreen"],
     button[title="Fullscreen"],
@@ -98,8 +115,6 @@ st.markdown("""
         left: -9999px !important;
         top: -9999px !important;
     }
-    /* Ensure image container doesn't reserve space for the hidden button */
-    [data-testid="stImage"] > div { position: relative !important; }
 
     .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 10px; }
@@ -283,41 +298,15 @@ def esc(x):
 
 
 def _install_viewer_js():
-    """Install custom zoom viewer + click handlers. Also force-removes Streamlit's native fullscreen button."""
+    """Install custom zoom viewer + click handlers. No Streamlit native fullscreen button exists
+    because we render images via st.markdown (raw HTML <img>), not st.image."""
     components.html("""
     <html><head><style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;height:0;}</style></head><body>
     <script>
       (function() {
         var pd = window.parent.document;
 
-        // ---------- 1) Kill Streamlit native fullscreen button ----------
-        function killNativeFS() {
-          var sels = [
-            '[data-testid="StyledFullScreenButton"]',
-            '[data-testid="stImage"] button',
-            'button[title="View fullscreen"]',
-            'button[title="Fullscreen"]',
-            'button[aria-label="View fullscreen"]',
-            'button[aria-label="Fullscreen"]',
-            'button[aria-label="Full screen"]',
-            '[class*="FullScreenButton"]',
-            '[class*="fullscreenButton"]'
-          ];
-          sels.forEach(function(s) {
-            pd.querySelectorAll(s).forEach(function(el) {
-              el.style.setProperty('display', 'none', 'important');
-              el.style.setProperty('visibility', 'hidden', 'important');
-              el.style.setProperty('opacity', '0', 'important');
-              el.style.setProperty('pointer-events', 'none', 'important');
-              el.style.setProperty('width', '0', 'important');
-              el.style.setProperty('height', '0', 'important');
-              el.remove();
-            });
-          });
-        }
-        killNativeFS();
-
-        // ---------- 2) Custom zoom viewer ----------
+        // ---- 1) Build the custom zoom viewer once ----
         if (!pd.getElementById('fsViewerGlobal')) {
           var v = pd.createElement('div');
           v.id = 'fsViewerGlobal';
@@ -355,10 +344,9 @@ def _install_viewer_js():
           };
         }
 
-        // ---------- 3) Attach click-to-zoom on every thumbnail ----------
+        // ---- 2) Attach click-to-zoom on every custom thumbnail ----
         function attach() {
-          killNativeFS();
-          pd.querySelectorAll('[data-testid="stImage"] img').forEach(function(el) {
+          pd.querySelectorAll('img.rv-thumb').forEach(function(el) {
             if (el.dataset.fsAttached === '1') return;
             el.dataset.fsAttached = '1';
             el.style.cursor = 'zoom-in';
@@ -373,7 +361,7 @@ def _install_viewer_js():
         }
         attach();
         new MutationObserver(function() { attach(); }).observe(pd.body, { childList: true, subtree: true });
-        setInterval(attach, 500);
+        setInterval(attach, 600);
       })();
     </script>
     </body></html>
@@ -381,7 +369,9 @@ def _install_viewer_js():
 
 
 def show_image(opt):
-    """Centered image via st.image. Click opens custom 1024x1024 zoom viewer."""
+    """Render image as raw HTML <img class='rv-thumb'> via st.markdown.
+    This bypasses st.image entirely, so Streamlit's native fullscreen
+    button (the little dark dot on hover) never appears."""
     try:
         node_id = opt.get("node_id")
         if not node_id:
@@ -393,11 +383,13 @@ def show_image(opt):
         if b64.startswith("data:") and "," in b64[:64]:
             b64 = b64.split(",", 1)[1]
 
-        img_bytes = base64.b64decode(b64)
-
-        c1, c2, c3 = st.columns([1, 1, 1])
-        with c2:
-            st.image(img_bytes, use_container_width=True)
+        # Wrap in a centered div and use class="rv-thumb" so CSS + JS can find it.
+        st.markdown(
+            f'<div class="rv-thumb-wrap">'
+            f'<img class="rv-thumb" src="data:image/png;base64,{b64}" alt="" draggable="false" />'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
     except Exception:
         return
 
