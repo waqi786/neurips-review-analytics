@@ -126,7 +126,8 @@ st.markdown("""
         transform: translateY(-2px) !important; box-shadow: 0 12px 26px rgba(79,70,229,.38) !important;
     }
     div[class*="st-key-cta_"] button *, div[class*="st-key-cta_"] button p {
-        color: #ffffff !important; background: transparent !important; font-weight: 700 !important; font-size: 15px !important;
+        color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+        background: transparent !important; font-weight: 700 !important; font-size: 15px !important;
     }
     div[class*="st-key-lopt_"] button, div[class*="st-key-ropt_"] button {
         width: 100% !important; text-align: left !important; justify-content: flex-start !important;
@@ -147,12 +148,9 @@ st.markdown("""
     div[class*="st-key-lopt_"] button p::first-letter { color: var(--blue) !important; font-weight: 900 !important; font-size: 16px !important; }
     div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
 
-    /* ---------- Native st.image styling ---------- */
-    [data-testid="stImage"] {
-        margin-bottom: 10px !important;
-    }
+    [data-testid="stImage"] { margin-bottom: 10px !important; }
     [data-testid="stImage"] img {
-        max-width: 220px !important;
+        max-width: 240px !important;
         width: 100% !important;
         border-radius: 12px !important;
         border: 1.5px solid var(--line) !important;
@@ -301,6 +299,7 @@ st.markdown("""
     .share-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15,23,42,.1); }
     .share-btn.x { background: #000; color: #fff; border-color: #000; }
     .share-btn.li { background: #0a66c2; color: #fff; border-color: #0a66c2; }
+    .share-btn.x *, .share-btn.li * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
 
     .hist { text-align: left; margin-top: 4px; }
     .hist-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 11px; background: #fafbfe; border: 1.5px solid var(--line);
@@ -312,6 +311,32 @@ st.markdown("""
 
     .done-credit { margin-top: 24px; padding-top: 20px; border-top: 1.5px solid var(--line); font-size: 12.5px; color: var(--muted); line-height: 1.8; }
     .done-credit b { color: var(--ink); font-weight: 700; }
+
+    /* ========== CONTRAST SAFEGUARDS ========== */
+    .brand-mark, .brand-mark *,
+    .col-num, .col-num *,
+    .r-letter, .r-letter *,
+    .rev-ok .rev-letter, .rev-ok .rev-letter *,
+    .rev-pick-no .rev-letter, .rev-pick-no .rev-letter *,
+    .rev-ok .rev-score, .rev-ok .rev-score *,
+    .tag.best, .tag.best *,
+    div[class*="st-key-cta_"] button, div[class*="st-key-cta_"] button * {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+    .chip.ok, .chip.ok * { color: #047857 !important; }
+    .chip.no, .chip.no * { color: #b91c1c !important; }
+    .tag.you, .tag.you * { color: #4338ca !important; }
+    .tag.you-no, .tag.you-no * { color: #b91c1c !important; }
+    .col-state.done-ok, .col-state.done-ok * { color: #047857 !important; }
+    .col-state.done-no, .col-state.done-no * { color: #b91c1c !important; }
+    .col-state.wait, .col-state.wait * { color: #4338ca !important; }
+    .rev-meta, .rev-meta * { color: var(--faint) !important; }
+    .paper-score, .paper-score * { color: var(--muted) !important; }
+    .paper-row a, .paper-row a * { color: var(--blue-d) !important; }
+    .done-ring-in { position: relative; z-index: 1; }
+    .done-title, .done-rank, .done-joke, .done-stats,
+    .share-row, .hist, .done-credit { position: relative; z-index: 1; }
 
     @media (max-width: 720px) {
         .hero-title { font-size: 30px; } .steps { grid-template-columns: 1fr; }
@@ -330,22 +355,27 @@ def _find_file(filename):
 
 
 @st.cache_data(show_spinner=False)
-def load_questions(version="v14"):
+def load_questions(version="v15"):
     with open(_find_file("questions.json"), "r") as f:
         return json.load(f)
 
 
 @st.cache_data(show_spinner=False)
-def load_images(version="v14"):
+def load_images(version="v15"):
+    """Load images.json, validating structure."""
     try:
         with open(_find_file("images.json"), "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            return {}
+        return data
+    except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
 
-questions = load_questions("v14")
-images_b64 = load_images("v14")
+questions = load_questions("v15")
+images_b64 = load_images("v15")
+
 for q in questions:
     q.setdefault("specificity", "Focused")
     for opt in q["options"]:
@@ -369,15 +399,21 @@ def esc(x):
 
 
 def show_image(opt):
-    """Native st.image — reliable, no HTML sanitization issues."""
-    b64 = images_b64.get(opt.get("node_id"))
-    if not b64:
+    """Native st.image — robust handling with data-URI detection."""
+    node_id = opt.get("node_id")
+    if not node_id:
+        return
+    b64 = images_b64.get(node_id)
+    if not b64 or not isinstance(b64, str) or len(b64) < 100:
         return
     try:
+        # Handle data URI prefix if present
+        if b64.startswith("data:") and "," in b64[:64]:
+            b64 = b64.split(",", 1)[1]
         img_bytes = base64.b64decode(b64)
-        st.image(img_bytes, width=220)
+        st.image(img_bytes, width=240)
     except Exception:
-        pass
+        return
 
 
 def new_deck():
@@ -557,7 +593,7 @@ audio_js = f"""
 st.markdown(audio_js, unsafe_allow_html=True)
 st.session_state.play_chime = False
 
-# ------------------------------------------------------------------ music
+# ------------------------------------------------------------------ music (persistent across reruns)
 try:
     with open(_find_file(BG_MUSIC_FILE), "rb") as music_file:
         music_b64 = base64.b64encode(music_file.read()).decode("utf-8")
@@ -575,26 +611,39 @@ if music_b64:
         cursor: pointer; font-family: 'Inter', sans-serif;
         font-size: 13px; box-shadow: 0 2px 6px rgba(15,23,42,.08);
         transition: all .2s ease; display: inline-flex;
-        align-items: center; gap: 6px;
+        align-items: center; gap: 6px; color: #0f172a !important;
       }}
       #musicBtn:hover {{ box-shadow: 0 4px 12px rgba(79,70,229,.18); border-color: #c7d2fe; }}
-      #musicBtn.playing {{ background: #eef2ff; border-color: #4f46e5; color: #4f46e5; }}
+      #musicBtn.playing {{ background: #eef2ff; border-color: #4f46e5; color: #4f46e5 !important; }}
     </style>
-    <audio id="bgmusic" src="data:audio/mpeg;base64,{music_b64}" loop preload="auto"></audio>
     <button id="musicBtn">&#127925; Enable Music</button>
     <script>
       (function() {{
+        const SRC = "data:audio/mpeg;base64,{music_b64}";
         const btn = document.getElementById('musicBtn');
-        const audio = document.getElementById('bgmusic');
 
-        const savedPlaying = localStorage.getItem('bgmusic_playing') === '1';
-        const savedTime = parseFloat(localStorage.getItem('bgmusic_time') || '0');
-        if (!isNaN(savedTime) && savedTime > 0) {{
-          try {{ audio.currentTime = savedTime; }} catch (e) {{}}
+        // Park the audio element in the PARENT document so it survives
+        // Streamlit component iframe re-renders on every rerun.
+        let audio = null;
+        try {{
+          const pd = window.parent.document;
+          audio = pd.getElementById('bgmusic-global');
+          if (!audio) {{
+            audio = pd.createElement('audio');
+            audio.id = 'bgmusic-global';
+            audio.src = SRC;
+            audio.loop = true;
+            audio.preload = 'auto';
+            audio.style.display = 'none';
+            pd.body.appendChild(audio);
+          }}
+        }} catch (e) {{
+          audio = new Audio(SRC);
+          audio.loop = true;
         }}
 
-        function setBtn(state) {{
-          if (state === 'playing') {{
+        function setBtn(on) {{
+          if (on) {{
             btn.classList.add('playing');
             btn.innerHTML = '&#128266; Music On';
           }} else {{
@@ -603,18 +652,24 @@ if music_b64:
           }}
         }}
 
+        const savedPlaying = localStorage.getItem('bgmusic_playing') === '1';
+        const savedTime = parseFloat(localStorage.getItem('bgmusic_time') || '0');
+        if (!isNaN(savedTime) && savedTime > 0) {{
+          try {{ audio.currentTime = savedTime; }} catch (e) {{}}
+        }}
+
         function tryPlay(userClicked) {{
           const p = audio.play();
           if (p && p.then) {{
             p.then(() => {{
-              setBtn('playing');
+              setBtn(true);
               localStorage.setItem('bgmusic_playing', '1');
             }}).catch(() => {{
-              setBtn('off');
+              setBtn(false);
               if (!userClicked) {{
                 const kick = () => {{
                   audio.play().then(() => {{
-                    setBtn('playing');
+                    setBtn(true);
                     localStorage.setItem('bgmusic_playing', '1');
                   }}).catch(() => {{}});
                   document.removeEventListener('click', kick);
@@ -629,11 +684,9 @@ if music_b64:
           }}
         }}
 
-        // Attempt autoplay on load (works if browser allows, or if user already interacted)
-        if (savedPlaying) {{
-          setBtn('playing');
-          tryPlay(false);
-        }} else {{
+        if (!audio.paused) {{
+          setBtn(true);
+        }} else if (savedPlaying) {{
           tryPlay(false);
         }}
 
@@ -643,14 +696,14 @@ if music_b64:
             tryPlay(true);
           }} else {{
             audio.pause();
-            setBtn('off');
+            setBtn(false);
             localStorage.setItem('bgmusic_playing', '0');
           }}
         }});
 
         setInterval(() => {{
           if (!audio.paused) {{
-            localStorage.setItem('bgmusic_time', audio.currentTime.toFixed(2));
+            try {{ localStorage.setItem('bgmusic_time', audio.currentTime.toFixed(2)); }} catch (e) {{}}
           }}
         }}, 1000);
 
