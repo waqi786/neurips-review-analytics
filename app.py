@@ -69,22 +69,8 @@ st.markdown("""
     div[class*="st-key-lopt_"] button p::first-letter { color: var(--blue) !important; font-weight: 900 !important; font-size: 16px !important; }
     div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
 
-    /* Center the st.image component */
-    [data-testid="stImage"] {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        margin: 0 auto !important;
-    }
-    [data-testid="stImage"] img {
-        max-width: 180px !important;
-        width: auto !important;
-        border-radius: 12px !important;
-        border: 1.5px solid var(--line) !important;
-        display: block !important;
-        margin: 0 auto !important;
-    }
+    [data-testid="stImage"] { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; margin: 0 auto !important; }
+    [data-testid="stImage"] img { max-width: 180px !important; width: auto !important; border-radius: 12px !important; border: 1.5px solid var(--line) !important; display: block !important; margin: 0 auto !important; }
 
     .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 10px; }
@@ -227,13 +213,12 @@ def _find_file(filename):
 
 
 @st.cache_data(show_spinner=False)
-def load_questions(version="v25"):
+def load_questions(version="v26"):
     with open(_find_file("questions.json"), "r") as f:
         return json.load(f)
 
 
-def load_images(version="v25"):
-    """Load images.json — NO cache, always fresh."""
+def load_images(version="v26"):
     try:
         path = _find_file("images.json")
         with open(path, "r", encoding="utf-8") as f:
@@ -243,8 +228,8 @@ def load_images(version="v25"):
         return {}
 
 
-questions = load_questions("v25")
-images_b64 = load_images("v25")
+questions = load_questions("v26")
+images_b64 = load_images("v26")
 
 for q in questions:
     q.setdefault("specificity", "Focused")
@@ -268,26 +253,69 @@ def esc(x):
     return html.escape(str(x))
 
 
-# ==================== TEMP DEBUG ====================
-with st.expander("🔧 Debug (for troubleshooting)", expanded=False):
-    st.write(f"**Images loaded:** {len(images_b64)}")
-    st.write(f"**Questions:** {len(questions)}")
-    if questions:
-        q0 = questions[0]
-        for opt in q0["options"]:
-            nid = opt.get("node_id")
-            st.write(f"- Option {opt['option_id']}: `{nid}` → {'✅ found' if nid in images_b64 else '❌ missing'}")
-    if images_b64:
-        sample_key = list(images_b64.keys())[0]
-        sample_val = images_b64[sample_key]
-        st.write(f"**Sample key:** `{sample_key}`")
-        st.write(f"**Sample value length:** {len(sample_val)} chars")
-        st.write(f"**Sample start:** `{sample_val[:40]}`")
-# ====================================================
+def _install_viewer_js():
+    """Install fullscreen viewer + click handlers once per page load."""
+    components.html("""
+    <html><head><style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;height:0;}</style></head><body>
+    <script>
+      (function() {
+        var pd = window.parent.document;
+        if (pd.getElementById('fsViewerGlobal')) return;
+
+        var v = pd.createElement('div');
+        v.id = 'fsViewerGlobal';
+        v.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#ffffff;z-index:2147483647;align-items:center;justify-content:center;';
+
+        var img = pd.createElement('img');
+        img.id = 'fsImgGlobal';
+        img.style.cssText = 'max-width:88vw;max-height:88vh;border-radius:10px;box-shadow:0 12px 48px rgba(15,23,42,.35);background:#ffffff;display:block;';
+
+        var cb = pd.createElement('button');
+        cb.id = 'fsCloseGlobal';
+        cb.innerHTML = '&#10005;';
+        cb.setAttribute('aria-label', 'Close');
+        cb.style.cssText = 'position:fixed;top:24px;right:24px;width:52px;height:52px;border-radius:50%;border:none;background:#0f172a;color:#ffffff;font-size:22px;cursor:pointer;font-weight:700;line-height:1;box-shadow:0 6px 20px rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:0;';
+        cb.onmouseenter = function() { cb.style.background = '#334155'; };
+        cb.onmouseleave = function() { cb.style.background = '#0f172a'; };
+        cb.onclick = function(e) { e.stopPropagation(); v.style.display = 'none'; };
+
+        v.appendChild(img);
+        v.appendChild(cb);
+        v.onclick = function(e) { if (e.target === v) v.style.display = 'none'; };
+        pd.body.appendChild(v);
+
+        pd.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && v.style.display === 'flex') v.style.display = 'none';
+        });
+
+        window.__openFs__ = function(src) {
+          img.src = src;
+          v.style.display = 'flex';
+        };
+
+        function attach() {
+          pd.querySelectorAll('[data-testid="stImage"] img').forEach(function(el) {
+            if (el.dataset.fsAttached === '1') return;
+            el.dataset.fsAttached = '1';
+            el.style.cursor = 'zoom-in';
+            el.addEventListener('click', function() {
+              var src = el.currentSrc || el.src;
+              if (!src) return;
+              window.__openFs__(src);
+            });
+          });
+        }
+        attach();
+        new MutationObserver(attach).observe(pd.body, { childList: true, subtree: true });
+        setInterval(attach, 900);
+      })();
+    </script>
+    </body></html>
+    """, height=0, width=0)
 
 
 def show_image(opt):
-    """Show image centered using st.image (native, reliable)."""
+    """Centered image via st.image (reliable, native)."""
     try:
         node_id = opt.get("node_id")
         if not node_id:
@@ -296,13 +324,11 @@ def show_image(opt):
         if not b64 or not isinstance(b64, str) or len(b64) < 100:
             return
 
-        # Strip data URI prefix
         if b64.startswith("data:") and "," in b64[:64]:
             b64 = b64.split(",", 1)[1]
 
         img_bytes = base64.b64decode(b64)
 
-        # Center via 3-column layout
         c1, c2, c3 = st.columns([1, 1, 1])
         with c2:
             st.image(img_bytes, use_container_width=True)
@@ -472,6 +498,10 @@ def paper_detail_rows(opt):
 
 
 acc = (st.session_state.score / st.session_state.total * 100) if st.session_state.total > 0 else 0
+
+
+# Install viewer once (before any images render)
+_install_viewer_js()
 
 
 audio_js = f"""
