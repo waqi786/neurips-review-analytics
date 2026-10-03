@@ -35,94 +35,186 @@ st.markdown("""
     #MainMenu, footer, header { visibility: hidden !important; }
     .block-container { padding: 1.4rem 1rem 3rem 1rem !important; max-width: 1180px !important; }
     h1, h2, h3, h4, h5, p, div, span, label { color: var(--ink); }
-    .stButton button, button[kind="secondary"], button[kind="primary"], [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"], div[class*="st-key-lopt_"] button, div[class*="st-key-ropt_"] button, div[class*="st-key-cta_"] button { background: #ffffff !important; background-color: #ffffff !important; color: var(--ink) !important; border: 1.5px solid var(--line) !important; border-radius: 14px !important; transition: all .16s ease !important; }
-    div[class*="st-key-cta_"] button { background: linear-gradient(135deg, #4f46e5, #6d5cf5) !important; border: none !important; padding: 15px 24px !important; width: 100% !important; }
-    div[class*="st-key-cta_"] button * { color: #ffffff !important; font-weight: 700 !important; }
-    div[class*="st-key-lopt_"] button, div[class*="st-key-ropt_"] button { width: 100% !important; text-align: left !important; padding: 15px 18px !important; font-size: 13.5px !important; white-space: pre-wrap !important; }
-    .hd { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
-    .brand-mark { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; }
-    .brand-name { font-size: 16px; font-weight: 800; }
+    *::-webkit-scrollbar { width: 12px; height: 12px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #a5b4fc 0%, #c4b5fd 100%); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; min-height: 48px; transition: background .2s ease; }
+    *::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%); background-clip: padding-box; border: 3px solid transparent; }
+    *::-webkit-scrollbar-corner { background: transparent; }
+    @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: #a5b4fc transparent; } }
+    html { scroll-behavior: smooth; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes pop { 0% { transform: scale(.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes flashGreen { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.55); } 70% { box-shadow: 0 0 0 16px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+    .fx { animation: fadeUp .35s ease both; }
+    .flash-ok { animation: pop .3s ease both, flashGreen .9s ease 1; }
+    [data-testid="stTooltipContent"], div[role="tooltip"], div[role="tooltip"] > div { background: #0f172a !important; background-color: #0f172a !important; border-radius: 10px !important; box-shadow: 0 8px 20px rgba(15,23,42,.25) !important; }
+    [data-testid="stTooltipContent"] *, div[role="tooltip"] * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 12px !important; font-weight: 600 !important; opacity: 1 !important; }
+    [data-testid="stIconMaterial"], [data-testid="stExpanderToggleIcon"], span[data-testid^="stIcon"], .material-symbols-rounded, .material-symbols-outlined, .material-icons { font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'Material Icons' !important; font-size: 18px !important; }
+    [data-testid="stExpander"] summary { display: flex !important; align-items: center !important; gap: 6px !important; background: var(--card) !important; background-color: var(--card) !important; border-radius: 12px !important; padding: 10px 14px !important; font-size: 12.5px !important; font-weight: 700 !important; }
+    [data-testid="stExpander"] summary:hover { background: #f8f9ff !important; background-color: #f8f9ff !important; }
+    [data-testid="stExpander"] summary *, [data-testid="stExpander"] summary span, [data-testid="stExpander"] summary p { color: var(--ink) !important; background: transparent !important; }
+    [data-testid="stExpander"] { background: var(--card) !important; background-color: var(--card) !important; border: 1.5px solid var(--line) !important; border-radius: 14px !important; margin-bottom: 9px !important; overflow: hidden !important; }
+    [data-testid="stExpanderDetails"] { background: var(--card) !important; background-color: var(--card) !important; color: var(--ink) !important; padding: 2px 14px 12px 14px !important; }
+    [data-testid="stExpanderDetails"] p, [data-testid="stExpanderDetails"] div { color: var(--ink); }
+    .stButton button, button[kind="secondary"], button[kind="primary"], [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"], div[class*="st-key-lopt_"] button, div[class*="st-key-ropt_"] button, div[class*="st-key-cta_"] button { background: #ffffff !important; background-color: #ffffff !important; background-image: none !important; color: var(--ink) !important; border: 1.5px solid var(--line) !important; border-radius: 14px !important; box-shadow: 0 1px 2px rgba(15,23,42,.04) !important; text-shadow: none !important; transition: all .16s ease !important; }
+    div[class*="st-key-cta_"] button { background: linear-gradient(135deg, #4f46e5, #6d5cf5) !important; border: none !important; box-shadow: 0 8px 20px rgba(79,70,229,.28) !important; padding: 15px 24px !important; width: 100% !important; margin-top: 10px !important; }
+    div[class*="st-key-cta_"] button:hover { transform: translateY(-2px) !important; box-shadow: 0 12px 26px rgba(79,70,229,.38) !important; }
+    div[class*="st-key-cta_"] button *, div[class*="st-key-cta_"] button p { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; background: transparent !important; font-weight: 700 !important; font-size: 15px !important; }
+    div[class*="st-key-lopt_"] button, div[class*="st-key-ropt_"] button { width: 100% !important; text-align: left !important; justify-content: flex-start !important; padding: 15px 18px !important; font-size: 13.5px !important; font-weight: 600 !important; line-height: 1.5 !important; white-space: pre-wrap !important; height: auto !important; min-height: 0 !important; display: block !important; text-transform: none !important; letter-spacing: 0 !important; margin-bottom: 4px !important; }
+    div[class*="st-key-lopt_"] button:hover { border-color: var(--blue) !important; background: #f8f9ff !important; box-shadow: 0 6px 16px rgba(79,70,229,.12) !important; transform: translateY(-1px) !important; }
+    div[class*="st-key-ropt_"] button:hover { border-color: var(--violet) !important; background: #fbf9ff !important; box-shadow: 0 6px 16px rgba(124,58,237,.12) !important; transform: translateY(-1px) !important; }
+    div[class*="st-key-lopt_"] button:focus, div[class*="st-key-ropt_"] button:focus { outline: none !important; }
+    div[class*="st-key-lopt_"] button *, div[class*="st-key-ropt_"] button * { background: transparent !important; color: var(--ink) !important; text-align: left !important; font-weight: 600 !important; font-size: 13.5px !important; line-height: 1.5 !important; white-space: pre-wrap !important; text-shadow: none !important; }
+    div[class*="st-key-lopt_"] button p::first-letter { color: var(--blue) !important; font-weight: 900 !important; font-size: 16px !important; }
+    div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
+
+    /* ===== Center the category image (st.image) ===== */
+    [data-testid="stImage"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
+    [data-testid="stImage"] img {
+        max-width: 200px !important;
+        width: auto !important;
+        border-radius: 12px !important;
+        border: 1.5px solid var(--line) !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+
+    .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; box-shadow: 0 6px 14px rgba(79,70,229,.3); }
+    .brand-name { font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
     .brand-name span { color: var(--blue); }
-    .pills { display: flex; gap: 8px; }
-    .pill { background: var(--card); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12px; color: var(--muted); }
-    .pill b { color: var(--ink); font-weight: 800; }
-    .col-hd { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px 14px; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; }
-    .col-num { width: 32px; height: 32px; border-radius: 10px; background: var(--blue); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; }
-    .col-num.right { background: var(--violet); }
-    .col-state { margin-left: auto; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: var(--faint); }
-    .col-state.wait { background: var(--blue-l); color: var(--blue-d); }
-    .col-state.done-ok { background: var(--green-l); color: #047857; }
-    .col-state.done-no { background: var(--red-l); color: #b91c1c; }
-    .result-panel { padding: 13px 15px; border-radius: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
-    .result-ok { background: var(--green-l); border: 1.5px solid #6ee7b7; color: #065f46; }
-    .result-no { background: var(--red-l); border: 1.5px solid #fca5a5; color: #991b1b; }
-    .r-letter { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; }
-    .result-ok .r-letter { background: var(--green); } .result-no .r-letter { background: var(--red); }
-    .rev { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 15px; margin-bottom: 9px; }
-    .rev-ok { border-color: var(--green) !important; background: #f6fef9 !important; }
-    .rev-pick-no { border-color: #fca5a5 !important; background: #fffafa !important; }
-    .rev-letter { width: 24px; height: 24px; border-radius: 7px; background: #f1f5f9; color: var(--muted); font-size: 12px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; }
-    .rev-ok .rev-letter { background: var(--green); color: #fff; }
-    .rev-pick-no .rev-letter { background: var(--red); color: #fff; }
-    .tag { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; }
-    .tag.best { background: var(--green); color: #fff; }
-    .tag.you { background: var(--blue-l); color: var(--blue-d); }
-    .tag.you-no { background: var(--red-l); color: #b91c1c; }
-    .rev-score { font-size: 13px; font-weight: 800; padding: 5px 10px; border-radius: 9px; background: #f1f5f9; color: var(--muted); }
-    .rev-ok .rev-score { background: var(--green); color: #fff; }
-    .bar-track { position: relative; height: 8px; border-radius: 6px; background: #eef1f6; margin-top: 11px; overflow: hidden; }
-    .bar-range { position: absolute; top: 0; bottom: 0; background: #c7d2fe; border-radius: 6px; }
-    .bar-fill { position: absolute; top: 0; bottom: 0; left: 0; background: #cbd5e1; border-radius: 6px; }
-    .rev-ok .bar-fill { background: linear-gradient(90deg, #34d399, #10b981); }
-    .bar-dot { position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); border: 2px solid #fff; transform: translateX(-50%); }
-    .rev-ok .bar-dot { background: #047857; }
-    .paper-row { display: flex; justify-content: space-between; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 12px; }
-    .paper-row:last-child { border-bottom: none; }
-    .paper-row a { color: var(--blue-d); text-decoration: none; }
-    .hero { background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; padding: 44px 32px; text-align: center; margin: 14px auto 8px auto; max-width: 760px; }
-    .hero-badge { display: inline-block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--blue); background: var(--blue-l); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px; }
-    .hero-title { font-size: 40px; font-weight: 900; line-height: 1.08; margin-bottom: 12px; }
-    .hero-title span { background: linear-gradient(90deg, #4f46e5, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-sub { font-size: 15px; color: var(--muted); max-width: 540px; margin: 0 auto 28px auto; }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: left; }
-    .step { background: #fafbfe; border: 1.5px solid var(--line); border-radius: 16px; padding: 16px; }
-    .step-n { width: 26px; height: 26px; border-radius: 8px; background: var(--blue-l); color: var(--blue); font-weight: 900; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-    .done { background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; padding: 38px 30px; text-align: center; margin: 14px auto; max-width: 680px; }
-    .done-ring { width: 118px; height: 118px; border-radius: 50%; margin: 0 auto 18px auto; display: flex; align-items: center; justify-content: center; }
-    .done-ring-in { width: 92px; height: 92px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .done-ring-v { font-size: 26px; font-weight: 900; }
-    .done-title { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
-    .done-joke { font-size: 13.5px; color: var(--blue-d); background: var(--blue-l); border-radius: 12px; padding: 10px 14px; margin-bottom: 20px; }
-    .done-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-    .done-stat { background: #fafbfe; border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 6px; }
-    .done-stat-v { font-size: 22px; font-weight: 900; color: var(--blue); }
-    .share-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-    .share-btn { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1.5px solid var(--line); background: #fff; }
-    .share-btn.x { background: #000; color: #fff; border-color: #000; }
-    .share-btn.li { background: #0a66c2; color: #fff; border-color: #0a66c2; }
-    .share-btn.x *, .share-btn.li * { color: #ffffff !important; }
-    .hist-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 11px; background: #fafbfe; border: 1.5px solid var(--line); margin-bottom: 6px; font-size: 12.5px; }
-    .chip { font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 7px; }
-    .chip.ok { background: var(--green-l); color: #047857; } .chip.no { background: var(--red-l); color: #b91c1c; }
-    .prog-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--faint); text-transform: uppercase; margin-bottom: 9px; }
+    .pills { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .pill { background: var(--card); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12px; color: var(--muted); font-weight: 600; display: inline-flex; gap: 7px; align-items: center; }
+    .pill b { color: var(--ink); font-weight: 800; font-size: 13px; }
+    .pill.hot { background: #fffbeb; border-color: #fde68a; }
+    .pill.hot b { color: #b45309; }
+    .prog-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 9px; padding: 0 2px; }
+    .prog-top .cur { color: var(--blue); }
     .segs { display: flex; gap: 6px; margin-bottom: 22px; }
     .seg { flex: 1; height: 6px; border-radius: 4px; background: #e3e6ef; }
     .seg.ok { background: var(--green); }
     .seg.half { background: var(--amber); }
     .seg.bad { background: #f87171; }
     .seg.now { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
-    .qs-topic { display: inline-block; font-size: 11px; font-weight: 700; color: var(--violet); background: var(--violet-l); padding: 6px 16px; border-radius: 999px; text-transform: uppercase; }
     .topic-wrap { text-align: center; margin-bottom: 6px; }
-    .qs-sub { text-align: center; font-size: 13px; color: var(--muted); margin: 8px 0 20px 0; }
-    .sec-hd { font-size: 11px; font-weight: 800; color: var(--faint); text-transform: uppercase; margin: 14px 0 10px 0; }
-    .round-sum { text-align: center; margin: 18px auto 0 auto; max-width: 520px; padding: 14px 18px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); }
+    .qs-topic { display: inline-block; font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-l); padding: 6px 16px; border-radius: 999px; text-transform: uppercase; letter-spacing: .09em; margin: 0 4px; }
+    .qs-topic.spec { color: var(--violet); background: var(--violet-l); }
+    .qs-sub { text-align: center; font-size: 13px; color: var(--muted); margin: 8px 0 20px 0; font-weight: 500; }
+    .col-hd { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px 14px; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; }
+    .col-num { width: 32px; height: 32px; border-radius: 10px; background: var(--blue); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; flex-shrink: 0; }
+    .col-num.right { background: var(--violet); }
+    .col-title { font-size: 14.5px; font-weight: 800; line-height: 1.25; }
+    .col-sub { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 500; }
+    .col-state { margin-left: auto; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: var(--faint); }
+    .col-state.wait { background: var(--blue-l); color: var(--blue-d); }
+    .col-state.done-ok { background: var(--green-l); color: #047857; }
+    .col-state.done-no { background: var(--red-l); color: #b91c1c; }
+    .locked { padding: 13px 15px; border-radius: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; background: #f8f9fc; border: 1.5px dashed var(--line); animation: pop .3s ease both; }
+    .locked-letter { width: 28px; height: 28px; border-radius: 8px; background: var(--blue-l); color: var(--blue-d); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; flex-shrink: 0; }
+    .locked-text { font-size: 12.5px; color: var(--muted); font-weight: 600; line-height: 1.45; }
+    .locked-text b { color: var(--ink); font-weight: 800; }
+    .result-panel { padding: 13px 15px; border-radius: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; animation: pop .3s ease both; }
+    .result-ok { background: var(--green-l); border: 1.5px solid #6ee7b7; color: #065f46; }
+    .result-no { background: var(--red-l); border: 1.5px solid #fca5a5; color: #991b1b; }
+    .r-letter { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #fff; flex-shrink: 0; }
+    .result-ok .r-letter { background: var(--green); } .result-no .r-letter { background: var(--red); }
+    .result-text { font-size: 13px; font-weight: 600; line-height: 1.45; }
+    .result-text b { font-weight: 800; }
+    .rev { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 15px; margin-bottom: 9px; animation: fadeUp .35s ease both; }
+    .rev-top { display: flex; align-items: flex-start; gap: 11px; }
+    .rev-ok { border-color: var(--green) !important; background: #f6fef9 !important; }
+    .rev-pick-no { border-color: #fca5a5 !important; background: #fffafa !important; }
+    .rev-letter { width: 24px; height: 24px; border-radius: 7px; background: #f1f5f9; color: var(--muted); font-size: 12px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rev-ok .rev-letter { background: var(--green); color: #fff; }
+    .rev-pick-no .rev-letter { background: var(--red); color: #fff; }
+    .rev-info { flex: 1; min-width: 0; }
+    .rev-title { font-size: 12.8px; font-weight: 600; line-height: 1.45; }
+    .rev-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .tag { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; }
+    .tag.best { background: var(--green); color: #fff; } .tag.you { background: var(--blue-l); color: var(--blue-d); }
+    .tag.you-no { background: var(--red-l); color: #b91c1c; }
+    .rev-score { font-size: 13px; font-weight: 800; padding: 5px 10px; border-radius: 9px; white-space: nowrap; flex-shrink: 0; background: #f1f5f9; color: var(--muted); }
+    .rev-ok .rev-score { background: var(--green); color: #fff; }
+    .bar-track { position: relative; height: 8px; border-radius: 6px; background: #eef1f6; margin-top: 11px; overflow: hidden; }
+    .bar-range { position: absolute; top: 0; bottom: 0; background: #c7d2fe; border-radius: 6px; transform-origin: left; animation: grow .6s ease both; }
+    .bar-fill { position: absolute; top: 0; bottom: 0; left: 0; background: #cbd5e1; border-radius: 6px; transform-origin: left; animation: grow .6s ease both; }
+    .rev-ok .bar-fill { background: linear-gradient(90deg, #34d399, #10b981); }
+    .bar-dot { position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); border: 2px solid #fff; transform: translateX(-50%); box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+    .rev-ok .bar-dot { background: #047857; }
+    .rev-meta { font-size: 10.8px; color: var(--faint); margin-top: 7px; font-weight: 500; display: flex; justify-content: space-between; }
+    .paper-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 12px; }
+    .paper-row:last-child { border-bottom: none; }
+    .paper-row a { color: var(--blue-d); text-decoration: none; font-weight: 600; }
+    .paper-row a:hover { text-decoration: underline; }
+    .paper-score { color: var(--muted); font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-left: 10px; }
+    .sec-hd { font-size: 11px; font-weight: 800; color: var(--faint); text-transform: uppercase; letter-spacing: .12em; margin: 14px 0 10px 0; }
+    .round-sum { text-align: center; margin: 18px auto 0 auto; max-width: 520px; padding: 14px 18px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); animation: pop .3s ease both; }
     .round-sum .rs-t { font-size: 15px; font-weight: 800; }
-    .locked { padding: 13px 15px; border-radius: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; background: #f8f9fc; border: 1.5px dashed var(--line); }
-    .locked-letter { width: 28px; height: 28px; border-radius: 8px; background: var(--blue-l); color: var(--blue-d); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; }
-    /* Center the image iframe */
-    [data-testid="stCustomComponentV1"] { display: flex !important; justify-content: center !important; width: 100% !important; }
-    [data-testid="stCustomComponentV1"] > div { display: flex !important; justify-content: center !important; width: 100% !important; }
-    iframe[title="streamlit_components.v1.html"] { margin: 0 auto !important; display: block !important; }
+    .round-sum .rs-s { font-size: 12.5px; color: var(--muted); margin-top: 3px; font-weight: 500; }
+    .hero { background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; padding: 44px 32px 34px 32px; text-align: center; margin: 14px auto 8px auto; max-width: 760px; box-shadow: 0 10px 34px rgba(15,23,42,.06); animation: fadeUp .4s ease both; }
+    .hero-badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); background: var(--blue-l); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px; }
+    .hero-title { font-size: 40px; font-weight: 900; letter-spacing: -.035em; line-height: 1.08; margin-bottom: 12px; }
+    .hero-title span { background: linear-gradient(90deg, #4f46e5, #7c3aed); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+    .hero-sub { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 540px; margin: 0 auto 28px auto; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: left; margin-bottom: 8px; }
+    .step { background: #fafbfe; border: 1.5px solid var(--line); border-radius: 16px; padding: 16px; }
+    .step-n { width: 26px; height: 26px; border-radius: 8px; background: var(--blue-l); color: var(--blue); font-weight: 900; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+    .step-t { font-size: 13.5px; font-weight: 800; margin-bottom: 3px; }
+    .step-d { font-size: 12.3px; color: var(--muted); line-height: 1.5; }
+    .hero-foot { font-size: 12px; color: var(--faint); margin-top: 16px; font-weight: 500; }
+    .done { background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; padding: 38px 30px 30px 30px; text-align: center; margin: 14px auto 10px auto; max-width: 680px; box-shadow: 0 10px 34px rgba(15,23,42,.06); animation: fadeUp .4s ease both; }
+    .done-ring { width: 118px; height: 118px; border-radius: 50%; margin: 0 auto 18px auto; display: flex; align-items: center; justify-content: center; }
+    .done-ring-in { width: 92px; height: 92px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .done-ring-v { font-size: 26px; font-weight: 900; line-height: 1; color: var(--ink); }
+    .done-ring-l { font-size: 9px; font-weight: 800; letter-spacing: .08em; color: var(--faint); margin-top: 4px; text-transform: uppercase; text-align: center; }
+    .done-rank { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
+    .done-title { font-size: 26px; font-weight: 900; letter-spacing: -.025em; margin-bottom: 6px; }
+    .done-sub { font-size: 14px; color: var(--muted); margin-bottom: 10px; line-height: 1.55; }
+    .done-joke { font-size: 13.5px; color: var(--blue-d); background: var(--blue-l); border-radius: 12px; padding: 10px 14px; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+    .done-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+    .done-stat { background: #fafbfe; border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 6px; }
+    .done-stat-v { font-size: 22px; font-weight: 900; color: var(--blue); line-height: 1; }
+    .done-stat-l { font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: .09em; font-weight: 800; margin-top: 7px; }
+    .share-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .share-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1.5px solid var(--line); background: #fff; transition: all .16s ease; }
+    .share-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15,23,42,.1); }
+    .share-btn.x { background: #000; border-color: #000; }
+    .share-btn.li { background: #0a66c2; border-color: #0a66c2; }
+    .share-btn.x, .share-btn.li { color: #ffffff !important; }
+    .share-btn.x *, .share-btn.li * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+    .hist { text-align: left; margin-top: 4px; }
+    .hist-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 11px; background: #fafbfe; border: 1.5px solid var(--line); margin-bottom: 6px; font-size: 12.5px; font-weight: 600; }
+    .hist-n { color: var(--faint); font-weight: 800; min-width: 22px; }
+    .hist-topic { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chip { font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 7px; letter-spacing: .04em; }
+    .chip.ok { background: var(--green-l); color: #047857; } .chip.no { background: var(--red-l); color: #b91c1c; }
+    .done-credit { margin-top: 24px; padding-top: 20px; border-top: 1.5px solid var(--line); font-size: 12.5px; color: var(--muted); line-height: 1.8; }
+    .done-credit b { color: var(--ink); font-weight: 700; }
+    .brand-mark, .brand-mark *, .col-num, .col-num *, .r-letter, .r-letter *, .rev-ok .rev-letter, .rev-ok .rev-letter *, .rev-pick-no .rev-letter, .rev-pick-no .rev-letter *, .rev-ok .rev-score, .rev-ok .rev-score *, .tag.best, .tag.best *, div[class*="st-key-cta_"] button, div[class*="st-key-cta_"] button * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+    .chip.ok, .chip.ok * { color: #047857 !important; }
+    .chip.no, .chip.no * { color: #b91c1c !important; }
+    .tag.you, .tag.you * { color: #4338ca !important; }
+    .tag.you-no, .tag.you-no * { color: #b91c1c !important; }
+    .col-state.done-ok, .col-state.done-ok * { color: #047857 !important; }
+    .col-state.done-no, .col-state.done-no * { color: #b91c1c !important; }
+    .col-state.wait, .col-state.wait * { color: #4338ca !important; }
+    .rev-meta, .rev-meta * { color: var(--faint) !important; }
+    .paper-score, .paper-score * { color: var(--muted) !important; }
+    .paper-row a, .paper-row a * { color: var(--blue-d) !important; }
+    .done-ring-in { position: relative; z-index: 1; }
+    .done-title, .done-rank, .done-joke, .done-stats, .share-row, .hist, .done-credit { position: relative; z-index: 1; }
+    @media (max-width: 720px) {
+        .hero-title { font-size: 30px; } .steps { grid-template-columns: 1fr; }
+        .done-stats { grid-template-columns: repeat(2, 1fr); } .hero { padding: 32px 18px 26px 18px; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -141,8 +233,10 @@ def load_questions(version="v24"):
 
 
 def load_images(version="v24"):
+    """Load images.json — NO cache, always fresh on every refresh."""
     try:
-        with open(_find_file("images.json"), "r", encoding="utf-8") as f:
+        path = _find_file("images.json")
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         return data if isinstance(data, dict) else {}
     except Exception:
@@ -175,7 +269,7 @@ def esc(x):
 
 
 def show_image(opt):
-    """Render the category image centered, with click-to-fullscreen."""
+    """Show the category image — centered, reliable via st.image."""
     try:
         node_id = opt.get("node_id")
         if not node_id:
@@ -184,66 +278,16 @@ def show_image(opt):
         if not b64 or not isinstance(b64, str) or len(b64) < 100:
             return
 
+        # Strip data URI prefix if present
         if b64.startswith("data:") and "," in b64[:64]:
-            header, b64 = b64.split(",", 1)
-            mime = "jpeg" if ("jpeg" in header or "jpg" in header) else "png"
-        elif b64.startswith("/9j/"):
-            mime = "jpeg"
-        elif b64.startswith("iVBOR"):
-            mime = "png"
-        else:
-            mime = "png"
+            b64 = b64.split(",", 1)[1]
 
-        # Center by rendering the iframe inside a middle column
-        c1, c2, c3 = st.columns([1, 2, 1])
+        img_bytes = base64.b64decode(b64)
+
+        # Center with st.columns — middle column gets the image
+        c1, c2, c3 = st.columns([1, 1, 1])
         with c2:
-            components.html(f"""
-            <html><head><style>
-              * {{ margin:0; padding:0; box-sizing:border-box; }}
-              html, body {{
-                background:transparent; overflow:hidden;
-                display:flex; align-items:center; justify-content:center;
-                width:100%; height:100%; min-height:220px;
-              }}
-              img.thumb {{
-                max-width:220px; max-height:220px;
-                width:auto; height:auto;
-                border-radius:12px; border:1.5px solid #e7e9f0;
-                cursor:zoom-in; display:block; background:#ffffff;
-                object-fit:contain; margin:0 auto;
-              }}
-              img.thumb:hover {{ transform:scale(1.04); box-shadow:0 6px 20px rgba(79,70,229,.22); }}
-            </style></head><body>
-            <img class="thumb" src="data:image/{mime};base64,{b64}" onclick="openFs(this.src)" loading="eager">
-            <script>
-              function openFs(src) {{
-                try {{
-                  var pd = window.parent.document;
-                  var v = pd.getElementById('fsViewerGlobal');
-                  if (!v) {{
-                    v = pd.createElement('div');
-                    v.id = 'fsViewerGlobal';
-                    v.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#ffffff;z-index:2147483647;align-items:center;justify-content:center;';
-                    var img = pd.createElement('img');
-                    img.id = 'fsImgGlobal';
-                    img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 32px rgba(15,23,42,.2);';
-                    var cb = pd.createElement('button');
-                    cb.innerHTML = '&#10005;';
-                    cb.style.cssText = 'position:fixed;top:20px;right:20px;width:48px;height:48px;border-radius:50%;border:none;background:#0f172a;color:#fff;font-size:20px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;';
-                    cb.onclick = function(e) {{ e.stopPropagation(); v.style.display='none'; }};
-                    v.appendChild(img);
-                    v.appendChild(cb);
-                    v.onclick = function(e) {{ if (e.target === v) v.style.display='none'; }};
-                    pd.body.appendChild(v);
-                    pd.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') v.style.display='none'; }});
-                  }}
-                  pd.getElementById('fsImgGlobal').src = src;
-                  v.style.display = 'flex';
-                }} catch(e) {{ console.error(e); }}
-              }}
-            </script>
-            </body></html>
-            """, height=240, width=240)
+            st.image(img_bytes, use_container_width=True)
     except Exception:
         return
 
@@ -351,7 +395,7 @@ def funny_comment(pct, score, total):
 
 
 def result_panel(ok, msg):
-    cls = "result-panel result-ok" if ok else "result-panel result-no"
+    cls = "result-panel result-ok flash-ok" if ok else "result-panel result-no"
     return (f'<div class="{cls}">'
             f'<span class="r-letter">{"&#10003;" if ok else "&#10005;"}</span>'
             f'<span class="result-text">{msg}</span></div>')
@@ -359,7 +403,7 @@ def result_panel(ok, msg):
 
 def locked_panel(sel_letter):
     return (f'<div class="locked"><span class="locked-letter">{esc(sel_letter)}</span>'
-            f'<span class="locked-text">Answer locked in — waiting for the other question</span></div>')
+            f'<span class="locked-text">Answer locked in - <b>waiting for the other question</b></span></div>')
 
 
 def reveal_card(opt, mode, correct_id, picked_id, max_std):
@@ -390,7 +434,7 @@ def reveal_card(opt, mode, correct_id, picked_id, max_std):
         bar = f'<div class="bar-track"><div class="bar-fill" style="width:{pct:.1f}%;"></div></div>'
 
     meta = (f'<div class="rev-meta"><span>Scores {opt["score_min"]} to {opt["score_max"]}</span>'
-            f'<span>{opt["num_papers"]} papers · {opt["num_reviews"]} reviews</span></div>')
+            f'<span>{opt["num_papers"]} papers &middot; {opt["num_reviews"]} reviews</span></div>')
 
     return (f'<div class="{cls}"><div class="rev-top"><div class="rev-letter">{esc(opt["option_id"])}</div>'
             f'<div class="rev-info"><div class="rev-title">{esc(opt["title"])}</div>{tags_html}</div>'
@@ -411,6 +455,7 @@ def paper_detail_rows(opt):
 
 acc = (st.session_state.score / st.session_state.total * 100) if st.session_state.total > 0 else 0
 
+
 audio_js = f"""
 <audio id="chime" src="data:audio/wav;base64,{BEEP_B64}"></audio>
 <script>
@@ -424,6 +469,7 @@ audio_js = f"""
 st.markdown(audio_js, unsafe_allow_html=True)
 st.session_state.play_chime = False
 
+
 try:
     with open(_find_file(BG_MUSIC_FILE), "rb") as music_file:
         music_b64 = base64.b64encode(music_file.read()).decode("utf-8")
@@ -436,46 +482,109 @@ if music_b64:
       (function() {{
         const SRC = "data:audio/mpeg;base64,{music_b64}";
         const pd = window.parent.document;
+        const top_doc = (function() {{
+          try {{ return window.top.document; }} catch(e) {{ return pd; }}
+        }})();
+
         let audio = pd.getElementById('bgmusic-global');
         if (!audio) {{
           audio = pd.createElement('audio');
           audio.id = 'bgmusic-global';
-          audio.src = SRC; audio.loop = true; audio.preload = 'auto';
-          audio.style.display = 'none'; pd.body.appendChild(audio);
+          audio.src = SRC;
+          audio.loop = true;
+          audio.preload = 'auto';
+          audio.style.display = 'none';
+          pd.body.appendChild(audio);
         }}
+
         let btn = pd.getElementById('bgmusic-btn');
         if (!btn) {{
           btn = pd.createElement('button');
           btn.id = 'bgmusic-btn';
           btn.innerHTML = '&#127925; Music';
-          btn.style.cssText = 'position:fixed;top:14px;right:14px;z-index:2147483647;border-radius:999px;border:1.5px solid #e7e9f0;background:#fff;padding:8px 16px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:#0f172a;';
+          btn.style.cssText = 'position:fixed;top:14px;right:14px;z-index:2147483647;border-radius:999px;border:1.5px solid #e7e9f0;background:#fff;padding:8px 16px;font-weight:700;cursor:pointer;font-family:Inter,-apple-system,sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(15,23,42,.08);color:#0f172a;transition:all .2s ease;line-height:1.2;';
           pd.body.appendChild(btn);
         }}
+
         let desiredOn = localStorage.getItem('bgmusic_on') !== '0';
+
         function renderBtn() {{
-          if (!desiredOn) {{ btn.innerHTML = '&#127925; Music'; btn.style.background = '#fff'; btn.style.color = '#0f172a'; }}
-          else if (audio.paused) {{ btn.innerHTML = '&#128264; Tap to start'; btn.style.background = '#fef3c7'; btn.style.color = '#92400e'; }}
-          else {{ btn.innerHTML = '&#128266; Music On'; btn.style.background = '#eef2ff'; btn.style.color = '#4f46e5'; }}
+          if (!desiredOn) {{
+            btn.innerHTML = '&#127925; Music';
+            btn.style.background = '#fff';
+            btn.style.borderColor = '#e7e9f0';
+            btn.style.color = '#0f172a';
+          }} else if (audio.paused) {{
+            btn.innerHTML = '&#128264; Tap to start';
+            btn.style.background = '#fef3c7';
+            btn.style.borderColor = '#fcd34d';
+            btn.style.color = '#92400e';
+          }} else {{
+            btn.innerHTML = '&#128266; Music On';
+            btn.style.background = '#eef2ff';
+            btn.style.borderColor = '#4f46e5';
+            btn.style.color = '#4f46e5';
+          }}
         }}
+
         if (btn._bgHandler) btn.removeEventListener('click', btn._bgHandler);
         btn._bgHandler = function(ev) {{
           ev.stopPropagation();
-          if (desiredOn) {{ desiredOn = false; audio.pause(); localStorage.setItem('bgmusic_on', '0'); }}
-          else {{ desiredOn = true; localStorage.setItem('bgmusic_on', '1'); audio.play().catch(function(){{}}); }}
+          if (desiredOn) {{
+            desiredOn = false;
+            audio.pause();
+            localStorage.setItem('bgmusic_on', '0');
+          }} else {{
+            desiredOn = true;
+            localStorage.setItem('bgmusic_on', '1');
+            audio.play().catch(function(){{}});
+          }}
           renderBtn();
         }};
         btn.addEventListener('click', btn._bgHandler);
-        function tryPlay() {{ if (desiredOn && audio.paused) audio.play().then(renderBtn).catch(renderBtn); }}
+
+        if (!audio._bgTick) {{
+          audio._bgTick = setInterval(function() {{
+            if (!audio.paused) {{
+              try {{ localStorage.setItem('bgmusic_time', audio.currentTime.toFixed(2)); }} catch (e) {{}}
+            }}
+          }}, 1000);
+        }}
+
+        const savedTime = parseFloat(localStorage.getItem('bgmusic_time') || '0');
+        if (savedTime > 0 && audio.currentTime < 1) {{
+          try {{ audio.currentTime = savedTime; }} catch (e) {{}}
+        }}
+
+        function tryPlay() {{
+          if (!desiredOn || !audio.paused) return;
+          audio.play().then(function() {{
+            renderBtn();
+          }}).catch(function() {{
+            renderBtn();
+          }});
+        }}
+
         if (desiredOn) {{
           tryPlay();
-          ['click','keydown','touchstart','pointerdown','scroll','mousemove','focus'].forEach(function(ev) {{
-            pd.addEventListener(ev, tryPlay, true); window.addEventListener(ev, tryPlay, true);
+          const events = ['click', 'keydown', 'touchstart', 'pointerdown',
+                          'mousedown', 'scroll', 'wheel', 'mousemove', 'focus', 'visibilitychange'];
+          events.forEach(function(ev) {{
+            try {{ pd.addEventListener(ev, tryPlay, true); }} catch (e) {{}}
+            try {{ window.addEventListener(ev, tryPlay, true); }} catch (e) {{}}
+            try {{ top_doc.addEventListener(ev, tryPlay, true); }} catch (e) {{}}
           }});
           let tries = 0;
-          const poll = setInterval(function() {{ tries++; tryPlay(); if (!audio.paused || tries > 200) clearInterval(poll); }}, 400);
+          const poll = setInterval(function() {{
+            tries++;
+            tryPlay();
+            if (!audio.paused || tries > 300) clearInterval(poll);
+          }}, 400);
         }}
+
         audio.addEventListener('play', renderBtn);
         audio.addEventListener('pause', renderBtn);
+
         renderBtn();
       }})();
     </script>
@@ -485,14 +594,22 @@ if music_b64:
 if st.session_state.stage == "start":
     st.markdown(f"""
     <div class="hero">
-        <div class="hero-badge">NeurIPS 2025 · COMPREHEND tree</div>
+        <div class="hero-badge">NeurIPS 2025 &middot; Real peer reviews &middot; COMPREHEND tree</div>
         <div class="hero-title">Can you predict<br><span>the reviewers?</span></div>
-        <div class="hero-sub">Each round compares two research categories from the same hierarchy level. Guess which scored highest and which split reviewers most.</div>
-        <div class="steps">
-            <div class="step"><div class="step-n">1</div><div><b>Pick the top score</b><br>Which category earned the highest average rating?</div></div>
-            <div class="step"><div class="step-n">2</div><div><b>Spot the disagreement</b><br>Which had the widest spread between reviewers?</div></div>
-            <div class="step"><div class="step-n">3</div><div><b>See where you rank</b><br>{TOTAL_TARGET} rounds, {TOTAL_TARGET * 2} guesses.</div></div>
+        <div class="hero-sub">
+            Each round compares two research categories discovered by our hierarchy tree, from
+            the same level of specificity. Guess which category scored highest, and which one
+            split the reviewers the most.
         </div>
+        <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-t">Pick the top score</div>
+                <div class="step-d">Which category earned the highest average rating?</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-t">Spot the disagreement</div>
+                <div class="step-d">Which category had the widest spread between reviewers?</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-t">See where you rank</div>
+                <div class="step-d">{TOTAL_TARGET} rounds, {TOTAL_TARGET * 2} guesses. Get a percentile at the end.</div></div>
+        </div>
+        <div class="hero-foot">Takes about 2 minutes</div>
     </div>
     """, unsafe_allow_html=True)
     _, c, _ = st.columns([1, 1.4, 1])
@@ -508,30 +625,41 @@ elif st.session_state.stage == "done":
     for i, h in enumerate(st.session_state.history, 1):
         l = '<span class="chip ok">Score &#10003;</span>' if h["left"] else '<span class="chip no">Score &#10005;</span>'
         r = '<span class="chip ok">Disagree &#10003;</span>' if h["right"] else '<span class="chip no">Disagree &#10005;</span>'
-        rows += f'<div class="hist-row"><span class="hist-n">{i}</span><span class="hist-topic">{esc(h["specificity"])} round</span>{l}{r}</div>'
+        rows += (f'<div class="hist-row"><span class="hist-n">{i}</span>'
+                 f'<span class="hist-topic">{esc(h["specificity"])} round</span>{l}{r}</div>')
 
-    share_text = html.escape(f"I scored {pct:.0f}th percentile on the Review Score Challenge ({st.session_state.score}/{st.session_state.total}). Can you beat me?")
+    share_text = html.escape(
+        f"I scored {pct:.0f}th percentile vs. random guessing on the Review Score Challenge "
+        f"({st.session_state.score}/{st.session_state.total} correct). Can you beat me?"
+    )
     share_x = f"https://twitter.com/intent/tweet?text={share_text}"
     share_li = "https://www.linkedin.com/sharing/share-offsite/?url=" + html.escape("https://huggingface.co/spaces")
 
     st.markdown(f"""
     <div class="done">
         <div class="done-ring" style="background: conic-gradient({color} {pct * 3.6:.0f}deg, #eceff5 0deg);">
-            <div class="done-ring-in"><div class="done-ring-v">{pct:.0f}%</div></div>
+            <div class="done-ring-in"><div class="done-ring-v">{pct:.0f}%</div><div class="done-ring-l">vs. random<br>guessing</div></div>
         </div>
+        <div class="done-rank">You outscored</div>
         <div class="done-title">{pct:.0f}% of random guessers</div>
+        <div class="done-sub">Based on a {N_OPTIONS_IN_DATA}-option random-choice baseline across your {st.session_state.total} answers.</div>
         <div class="done-joke">{joke}</div>
         <div class="done-stats">
-            <div class="done-stat"><div class="done-stat-v">{st.session_state.score}/{st.session_state.total}</div><div>Correct</div></div>
-            <div class="done-stat"><div class="done-stat-v">{acc:.0f}%</div><div>Accuracy</div></div>
-            <div class="done-stat"><div class="done-stat-v">{st.session_state.best_streak}</div><div>Best streak</div></div>
-            <div class="done-stat"><div class="done-stat-v">{sum(1 for h in st.session_state.history if h["left"] and h["right"])}</div><div>Perfect rounds</div></div>
+            <div class="done-stat"><div class="done-stat-v">{st.session_state.score}/{st.session_state.total}</div><div class="done-stat-l">Correct</div></div>
+            <div class="done-stat"><div class="done-stat-v">{acc:.0f}%</div><div class="done-stat-l">Accuracy</div></div>
+            <div class="done-stat"><div class="done-stat-v">{st.session_state.best_streak}</div><div class="done-stat-l">Best streak</div></div>
+            <div class="done-stat"><div class="done-stat-v">{sum(1 for h in st.session_state.history if h["left"] and h["right"])}</div><div class="done-stat-l">Perfect rounds</div></div>
         </div>
         <div class="share-row">
             <a class="share-btn x" href="{share_x}" target="_blank">Share on X</a>
             <a class="share-btn li" href="{share_li}" target="_blank">Share on LinkedIn</a>
         </div>
-        {rows}
+        <div class="hist"><div class="sec-hd" style="text-align:center;">Round breakdown</div>{rows}</div>
+        <div class="done-credit">
+            Built by <b>Waqar Ali</b>, supervised by <b>Haw-Shiuan Chang</b><br>
+            NeurIPS 2025 peer review dataset &middot; COMPREHEND 512-paper hierarchy tree<br>
+            Thanks for playing.
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -572,13 +700,13 @@ else:
             c = ""
         segs += f'<div class="seg {c}"></div>'
     st.markdown(f"""
-    <div class="prog-top"><span>Round {qn + 1} of {TOTAL_TARGET}</span><span>Answer both questions</span></div>
+    <div class="prog-top"><span class="cur">Round {qn + 1} of {TOTAL_TARGET}</span><span>Answer both questions</span></div>
     <div class="segs">{segs}</div>
     """, unsafe_allow_html=True)
 
     st.markdown(
-        f'<div class="topic-wrap"><span class="qs-topic">{esc(q["specificity"])} categories</span></div>'
-        f'<div class="qs-sub">2 categories from the same level. Trust your instincts.</div>',
+        f'<div class="topic-wrap"><span class="qs-topic spec">{esc(q["specificity"])} categories</span></div>'
+        f'<div class="qs-sub">{N_OPTIONS_IN_DATA} categories from the same level of our research hierarchy. Trust your instincts.</div>',
         unsafe_allow_html=True)
 
     max_std = max(float(o["std"]) for o in q["options"])
@@ -593,7 +721,7 @@ else:
         else:
             s_cls, s_txt = "", "Your turn"
         st.markdown(f"""
-        <div class="col-hd">
+        <div class="col-hd fx">
             <div class="col-num">1</div>
             <div><div class="col-title">Highest score</div><div class="col-sub">Which category scored highest?</div></div>
             <div class="col-state {s_cls}">{s_txt}</div>
@@ -615,10 +743,11 @@ else:
             msg = (f'Correct. <b>{esc(correct)}</b> scored highest at <b>{esc(q["correct_rating"])}</b>.' if ok else
                    f'You picked <b>{esc(sel)}</b>. Correct was <b>{esc(correct)}</b> at <b>{esc(q["correct_rating"])}</b>.')
             st.markdown(result_panel(ok, msg), unsafe_allow_html=True)
+            st.markdown(f'<div class="sec-hd">Score reveal &middot; scale {SCALE_MIN:.0f} to {SCALE_MAX:.0f}</div>', unsafe_allow_html=True)
             for opt in q["options"]:
                 show_image(opt)
                 st.markdown(reveal_card(opt, "score", correct, sel, max_std), unsafe_allow_html=True)
-                with st.expander(f"See details — {opt['option_id']}"):
+                with st.expander(f"See details - {opt['option_id']} ({opt['num_papers']} papers)"):
                     st.markdown(paper_detail_rows(opt), unsafe_allow_html=True)
 
     with right_col:
@@ -630,7 +759,7 @@ else:
         else:
             s_cls, s_txt = "", "Your turn"
         st.markdown(f"""
-        <div class="col-hd">
+        <div class="col-hd fx">
             <div class="col-num right">2</div>
             <div><div class="col-title">Disagreement</div><div class="col-sub">Which had the most reviewer disagreement?</div></div>
             <div class="col-state {s_cls}">{s_txt}</div>
@@ -652,10 +781,11 @@ else:
             msg = (f'Correct. <b>{esc(vcorrect)}</b> had the highest disagreement.' if ok else
                    f'You picked <b>{esc(sel)}</b>. Correct was <b>{esc(vcorrect)}</b>.')
             st.markdown(result_panel(ok, msg), unsafe_allow_html=True)
+            st.markdown('<div class="sec-hd">Disagreement reveal &middot; standard deviation</div>', unsafe_allow_html=True)
             for opt in q["options"]:
                 show_image(opt)
                 st.markdown(reveal_card(opt, "std", vcorrect, sel, max_std), unsafe_allow_html=True)
-                with st.expander(f"See details — {opt['option_id']}"):
+                with st.expander(f"See details - {opt['option_id']} ({opt['num_papers']} papers)"):
                     st.markdown(paper_detail_rows(opt), unsafe_allow_html=True)
 
     if both_answered:
@@ -664,7 +794,8 @@ else:
         sub = {2: "Both guesses landed. Keep the streak going.",
                1: "Half right. Reviewers are unpredictable.",
                0: "Nobody sees these coming. Shake it off."}[n_ok]
-        st.markdown(f'<div class="round-sum"><div class="rs-t">{title} · +{n_ok}</div><div>{sub}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="round-sum"><div class="rs-t">{title} &middot; +{n_ok}</div><div class="rs-s">{sub}</div></div>',
+                    unsafe_allow_html=True)
         is_last = qn + 1 >= TOTAL_TARGET
         _, mid, _ = st.columns([1, 1.6, 1])
         with mid:
