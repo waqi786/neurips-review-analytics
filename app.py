@@ -70,6 +70,19 @@ st.markdown("""
     div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
     [data-testid="stImage"] { margin-bottom: 10px !important; }
     [data-testid="stImage"] img { max-width: 240px !important; width: 100% !important; border-radius: 12px !important; border: 1.5px solid var(--line) !important; display: block !important; }
+    /* =========== CENTER IMAGE COMPONENT =========== */
+    [data-testid="stCustomComponentV1"],
+    iframe[title="streamlit_components.v1.html"] {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block !important;
+    }
+    [data-testid="stCustomComponentV1"] > div,
+    [data-testid="stCustomComponentV1"] > div > iframe {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block !important;
+    }
     .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-mark { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; box-shadow: 0 6px 14px rgba(79,70,229,.3); }
@@ -195,7 +208,6 @@ st.markdown("""
     .paper-row a, .paper-row a * { color: var(--blue-d) !important; }
     .done-ring-in { position: relative; z-index: 1; }
     .done-title, .done-rank, .done-joke, .done-stats, .share-row, .hist, .done-credit { position: relative; z-index: 1; }
-    iframe[title="streamlit_components.v1.html"] { display: none !important; }
     @media (max-width: 720px) {
         .hero-title { font-size: 30px; } .steps { grid-template-columns: 1fr; }
         .done-stats { grid-template-columns: repeat(2, 1fr); } .hero { padding: 32px 18px 26px 18px; }
@@ -212,13 +224,13 @@ def _find_file(filename):
 
 
 @st.cache_data(show_spinner=False)
-def load_questions(version="v17"):
+def load_questions(version="v18"):
     with open(_find_file("questions.json"), "r") as f:
         return json.load(f)
 
 
 @st.cache_data(show_spinner=False)
-def load_images(version="v17"):
+def load_images(version="v18"):
     try:
         with open(_find_file("images.json"), "r") as f:
             data = json.load(f)
@@ -229,8 +241,8 @@ def load_images(version="v17"):
         return {}
 
 
-questions = load_questions("v17")
-images_b64 = load_images("v17")
+questions = load_questions("v18")
+images_b64 = load_images("v18")
 
 for q in questions:
     q.setdefault("specificity", "Focused")
@@ -255,7 +267,7 @@ def esc(x):
 
 
 def show_image(opt):
-    """Render image with click-to-fullscreen (white bg + close X)."""
+    """Centered image with click-to-fullscreen (white bg + close X)."""
     node_id = opt.get("node_id")
     if not node_id:
         return
@@ -273,13 +285,21 @@ def show_image(opt):
 
     components.html(f"""
     <html><head><style>
-      html, body {{ margin:0; padding:0; background:transparent; overflow:hidden; }}
-      img.thumb {{
-        max-width:240px; width:100%;
-        border-radius:12px; border:1.5px solid #e7e9f0;
-        cursor:zoom-in; display:block; transition:transform .15s ease;
+      html, body {{
+        margin:0; padding:0; background:transparent; overflow:hidden;
+        display:flex; align-items:center; justify-content:center;
+        width:100%; height:100%;
       }}
-      img.thumb:hover {{ transform:scale(1.02); box-shadow:0 4px 16px rgba(79,70,229,.18); }}
+      img.thumb {{
+        max-width:220px; max-height:220px; width:auto; height:auto;
+        border-radius:12px; border:1.5px solid #e7e9f0;
+        cursor:zoom-in; display:block; background:#ffffff;
+        transition:transform .15s ease, box-shadow .15s ease;
+      }}
+      img.thumb:hover {{
+        transform:scale(1.04);
+        box-shadow:0 6px 20px rgba(79,70,229,.22);
+      }}
     </style></head><body>
     <img class="thumb" src="data:image/{mime};base64,{b64}" onclick="openFs(this.src)">
     <script>
@@ -313,7 +333,7 @@ def show_image(opt):
       }}
     </script>
     </body></html>
-    """, height=250, width=260)
+    """, height=240, width=280)
 
 
 def new_deck():
@@ -572,20 +592,33 @@ if music_b64:
           try {{ audio.currentTime = savedTime; }} catch (e) {{}}
         }}
 
-        // Default ON — only OFF if user explicitly turned it off
+        // ===== DEFAULT ON: user has to explicitly turn it OFF =====
         const wantOn = localStorage.getItem('bgmusic_on') !== '0';
         if (wantOn && audio.paused) {{
           audio.play().then(updateBtn).catch(function() {{
-            // Autoplay blocked — restart on first user interaction anywhere
+            // Browser blocked autoplay — hook EVERY possible user gesture
+            const events = ['click', 'keydown', 'touchstart', 'pointerdown', 'mousedown', 'scroll', 'wheel', 'mousemove'];
             const kick = function() {{
               audio.play().then(updateBtn).catch(function(){{}});
-              pd.removeEventListener('click', kick, true);
-              pd.removeEventListener('keydown', kick, true);
-              pd.removeEventListener('touchstart', kick, true);
+              events.forEach(function(ev) {{
+                try {{ pd.removeEventListener(ev, kick, true); }} catch (e) {{}}
+                try {{ window.removeEventListener(ev, kick, true); }} catch (e) {{}}
+              }});
             }};
-            pd.addEventListener('click', kick, true);
-            pd.addEventListener('keydown', kick, true);
-            pd.addEventListener('touchstart', kick, true);
+            events.forEach(function(ev) {{
+              try {{ pd.addEventListener(ev, kick, true); }} catch (e) {{}}
+              try {{ window.addEventListener(ev, kick, true); }} catch (e) {{}}
+            }});
+            // Also retry every 500ms for 15s (some browsers unlock after a moment)
+            let tries = 0;
+            const interval = setInterval(function() {{
+              tries++;
+              if (!audio.paused || tries > 30) {{ clearInterval(interval); return; }}
+              audio.play().then(function() {{
+                updateBtn();
+                clearInterval(interval);
+              }}).catch(function(){{}});
+            }}, 500);
           }});
         }}
         updateBtn();
