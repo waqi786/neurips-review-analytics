@@ -70,19 +70,7 @@ st.markdown("""
     div[class*="st-key-ropt_"] button p::first-letter { color: var(--violet) !important; font-weight: 900 !important; font-size: 16px !important; }
     [data-testid="stImage"] { margin-bottom: 10px !important; }
     [data-testid="stImage"] img { max-width: 240px !important; width: 100% !important; border-radius: 12px !important; border: 1.5px solid var(--line) !important; display: block !important; }
-    /* =========== CENTER IMAGE COMPONENT =========== */
-    [data-testid="stCustomComponentV1"],
-    iframe[title="streamlit_components.v1.html"] {
-        margin-left: auto !important;
-        margin-right: auto !important;
-        display: block !important;
-    }
-    [data-testid="stCustomComponentV1"] > div,
-    [data-testid="stCustomComponentV1"] > div > iframe {
-        margin-left: auto !important;
-        margin-right: auto !important;
-        display: block !important;
-    }
+    [data-testid="stCustomComponentV1"], iframe[title="streamlit_components.v1.html"] { margin-left: auto !important; margin-right: auto !important; display: block !important; }
     .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-mark { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; box-shadow: 0 6px 14px rgba(79,70,229,.3); }
@@ -224,25 +212,26 @@ def _find_file(filename):
 
 
 @st.cache_data(show_spinner=False)
-def load_questions(version="v18"):
+def load_questions(version="v20"):
     with open(_find_file("questions.json"), "r") as f:
         return json.load(f)
 
 
-@st.cache_data(show_spinner=False)
-def load_images(version="v18"):
+def load_images(version="v20"):
+    """Load images.json — NO cache, always fresh on every refresh."""
     try:
-        with open(_find_file("images.json"), "r") as f:
+        path = _find_file("images.json")
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         if not isinstance(data, dict):
             return {}
         return data
-    except (FileNotFoundError, json.JSONDecodeError):
+    except Exception:
         return {}
 
 
-questions = load_questions("v18")
-images_b64 = load_images("v18")
+questions = load_questions("v20")
+images_b64 = load_images("v20")
 
 for q in questions:
     q.setdefault("specificity", "Focused")
@@ -268,72 +257,79 @@ def esc(x):
 
 def show_image(opt):
     """Centered image with click-to-fullscreen (white bg + close X)."""
-    node_id = opt.get("node_id")
-    if not node_id:
-        return
-    b64 = images_b64.get(node_id)
-    if not b64 or not isinstance(b64, str) or len(b64) < 100:
-        return
+    try:
+        node_id = opt.get("node_id")
+        if not node_id:
+            return
+        b64 = images_b64.get(node_id)
+        if not b64 or not isinstance(b64, str) or len(b64) < 100:
+            return
 
-    if b64.startswith("data:") and "," in b64[:64]:
-        header, b64 = b64.split(",", 1)
-        mime = "jpeg" if ("jpeg" in header or "jpg" in header) else "png"
-    elif b64.startswith("/9j/"):
-        mime = "jpeg"
-    else:
-        mime = "png"
+        if b64.startswith("data:") and "," in b64[:64]:
+            header, b64 = b64.split(",", 1)
+            mime = "jpeg" if ("jpeg" in header or "jpg" in header) else "png"
+        elif b64.startswith("/9j/"):
+            mime = "jpeg"
+        elif b64.startswith("iVBOR"):
+            mime = "png"
+        else:
+            mime = "png"
 
-    components.html(f"""
-    <html><head><style>
-      html, body {{
-        margin:0; padding:0; background:transparent; overflow:hidden;
-        display:flex; align-items:center; justify-content:center;
-        width:100%; height:100%;
-      }}
-      img.thumb {{
-        max-width:220px; max-height:220px; width:auto; height:auto;
-        border-radius:12px; border:1.5px solid #e7e9f0;
-        cursor:zoom-in; display:block; background:#ffffff;
-        transition:transform .15s ease, box-shadow .15s ease;
-      }}
-      img.thumb:hover {{
-        transform:scale(1.04);
-        box-shadow:0 6px 20px rgba(79,70,229,.22);
-      }}
-    </style></head><body>
-    <img class="thumb" src="data:image/{mime};base64,{b64}" onclick="openFs(this.src)">
-    <script>
-      function openFs(src) {{
-        try {{
-          var pd = window.parent.document;
-          var v = pd.getElementById('fsViewerGlobal');
-          if (!v) {{
-            v = pd.createElement('div');
-            v.id = 'fsViewerGlobal';
-            v.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#ffffff;z-index:2147483647;align-items:center;justify-content:center;';
-            var img = pd.createElement('img');
-            img.id = 'fsImgGlobal';
-            img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 32px rgba(15,23,42,.2);';
-            var closeBtn = pd.createElement('button');
-            closeBtn.innerHTML = '&#10005;';
-            closeBtn.setAttribute('aria-label','Close');
-            closeBtn.style.cssText = 'position:fixed;top:20px;right:20px;width:48px;height:48px;border-radius:50%;border:none;background:#0f172a;color:#fff;font-size:20px;cursor:pointer;font-weight:700;line-height:1;box-shadow:0 4px 12px rgba(15,23,42,.3);display:flex;align-items:center;justify-content:center;';
-            closeBtn.onclick = function(e) {{ e.stopPropagation(); v.style.display='none'; }};
-            v.appendChild(img);
-            v.appendChild(closeBtn);
-            v.onclick = function(e) {{ if (e.target === v) v.style.display='none'; }};
-            pd.body.appendChild(v);
-            pd.addEventListener('keydown', function(e) {{
-              if (e.key === 'Escape') v.style.display='none';
-            }});
+        components.html(f"""
+        <html><head><style>
+          * {{ margin:0; padding:0; box-sizing:border-box; }}
+          html, body {{
+            background:transparent; overflow:hidden;
+            display:flex; align-items:center; justify-content:center;
+            width:100%; height:100%; min-height:230px;
           }}
-          pd.getElementById('fsImgGlobal').src = src;
-          v.style.display = 'flex';
-        }} catch(e) {{ console.error('fs error', e); }}
-      }}
-    </script>
-    </body></html>
-    """, height=240, width=280)
+          img.thumb {{
+            max-width:230px; max-height:230px;
+            border-radius:12px; border:1.5px solid #e7e9f0;
+            cursor:zoom-in; display:block; background:#ffffff;
+            transition:transform .15s ease, box-shadow .15s ease;
+            object-fit:contain;
+          }}
+          img.thumb:hover {{
+            transform:scale(1.04);
+            box-shadow:0 6px 20px rgba(79,70,229,.22);
+          }}
+        </style></head><body>
+        <img class="thumb" src="data:image/{mime};base64,{b64}" onclick="openFs(this.src)" loading="eager">
+        <script>
+          function openFs(src) {{
+            try {{
+              var pd = window.parent.document;
+              var v = pd.getElementById('fsViewerGlobal');
+              if (!v) {{
+                v = pd.createElement('div');
+                v.id = 'fsViewerGlobal';
+                v.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#ffffff;z-index:2147483647;align-items:center;justify-content:center;';
+                var img = pd.createElement('img');
+                img.id = 'fsImgGlobal';
+                img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 32px rgba(15,23,42,.2);';
+                var closeBtn = pd.createElement('button');
+                closeBtn.innerHTML = '&#10005;';
+                closeBtn.setAttribute('aria-label','Close');
+                closeBtn.style.cssText = 'position:fixed;top:20px;right:20px;width:48px;height:48px;border-radius:50%;border:none;background:#0f172a;color:#fff;font-size:20px;cursor:pointer;font-weight:700;line-height:1;box-shadow:0 4px 12px rgba(15,23,42,.3);display:flex;align-items:center;justify-content:center;';
+                closeBtn.onclick = function(e) {{ e.stopPropagation(); v.style.display='none'; }};
+                v.appendChild(img);
+                v.appendChild(closeBtn);
+                v.onclick = function(e) {{ if (e.target === v) v.style.display='none'; }};
+                pd.body.appendChild(v);
+                pd.addEventListener('keydown', function(e) {{
+                  if (e.key === 'Escape') v.style.display='none';
+                }});
+              }}
+              pd.getElementById('fsImgGlobal').src = src;
+              v.style.display = 'flex';
+            }} catch(e) {{ console.error('fs error', e); }}
+          }}
+        </script>
+        </body></html>
+        """, height=250, width=280)
+    except Exception:
+        return
 
 
 def new_deck():
@@ -526,6 +522,9 @@ if music_b64:
       (function() {{
         const SRC = "data:audio/mpeg;base64,{music_b64}";
         const pd = window.parent.document;
+        const top_doc = (function() {{
+          try {{ return window.top.document; }} catch(e) {{ return pd; }}
+        }})();
 
         let audio = pd.getElementById('bgmusic-global');
         if (!audio) {{
@@ -547,12 +546,20 @@ if music_b64:
           pd.body.appendChild(btn);
         }}
 
-        function updateBtn() {{
-          if (audio.paused) {{
+        // Default ON unless user explicitly turned it off
+        let desiredOn = localStorage.getItem('bgmusic_on') !== '0';
+
+        function renderBtn() {{
+          if (!desiredOn) {{
             btn.innerHTML = '&#127925; Music';
             btn.style.background = '#fff';
             btn.style.borderColor = '#e7e9f0';
             btn.style.color = '#0f172a';
+          }} else if (audio.paused) {{
+            btn.innerHTML = '&#128264; Tap to start';
+            btn.style.background = '#fef3c7';
+            btn.style.borderColor = '#fcd34d';
+            btn.style.color = '#92400e';
           }} else {{
             btn.innerHTML = '&#128266; Music On';
             btn.style.background = '#eef2ff';
@@ -561,24 +568,25 @@ if music_b64:
           }}
         }}
 
-        if (btn._bgHandler) {{
-          btn.removeEventListener('click', btn._bgHandler);
-        }}
+        if (btn._bgHandler) btn.removeEventListener('click', btn._bgHandler);
         btn._bgHandler = function(ev) {{
           ev.stopPropagation();
-          if (audio.paused) {{
-            audio.play().then(function() {{
-              localStorage.setItem('bgmusic_on', '1');
-              updateBtn();
-            }}).catch(function(e) {{ console.error('play failed', e); }});
-          }} else {{
+          if (desiredOn) {{
+            // User clicked while ON → turn OFF
+            desiredOn = false;
             audio.pause();
             localStorage.setItem('bgmusic_on', '0');
-            updateBtn();
+          }} else {{
+            // User clicked while OFF → turn ON
+            desiredOn = true;
+            localStorage.setItem('bgmusic_on', '1');
+            audio.play().catch(function(){{}});
           }}
+          renderBtn();
         }};
         btn.addEventListener('click', btn._bgHandler);
 
+        // Persist playback position
         if (!audio._bgTick) {{
           audio._bgTick = setInterval(function() {{
             if (!audio.paused) {{
@@ -592,36 +600,43 @@ if music_b64:
           try {{ audio.currentTime = savedTime; }} catch (e) {{}}
         }}
 
-        // ===== DEFAULT ON: user has to explicitly turn it OFF =====
-        const wantOn = localStorage.getItem('bgmusic_on') !== '0';
-        if (wantOn && audio.paused) {{
-          audio.play().then(updateBtn).catch(function() {{
-            // Browser blocked autoplay — hook EVERY possible user gesture
-            const events = ['click', 'keydown', 'touchstart', 'pointerdown', 'mousedown', 'scroll', 'wheel', 'mousemove'];
-            const kick = function() {{
-              audio.play().then(updateBtn).catch(function(){{}});
-              events.forEach(function(ev) {{
-                try {{ pd.removeEventListener(ev, kick, true); }} catch (e) {{}}
-                try {{ window.removeEventListener(ev, kick, true); }} catch (e) {{}}
-              }});
-            }};
-            events.forEach(function(ev) {{
-              try {{ pd.addEventListener(ev, kick, true); }} catch (e) {{}}
-              try {{ window.addEventListener(ev, kick, true); }} catch (e) {{}}
-            }});
-            // Also retry every 500ms for 15s (some browsers unlock after a moment)
-            let tries = 0;
-            const interval = setInterval(function() {{
-              tries++;
-              if (!audio.paused || tries > 30) {{ clearInterval(interval); return; }}
-              audio.play().then(function() {{
-                updateBtn();
-                clearInterval(interval);
-              }}).catch(function(){{}});
-            }}, 500);
+        // ========== AGGRESSIVE AUTOPLAY ==========
+        function tryPlay() {{
+          if (!desiredOn || !audio.paused) return;
+          audio.play().then(function() {{
+            renderBtn();
+          }}).catch(function() {{
+            renderBtn();
           }});
         }}
-        updateBtn();
+
+        if (desiredOn) {{
+          // Try immediate autoplay
+          tryPlay();
+
+          // Hook every possible gesture on parent + top + window + document
+          const events = ['click', 'keydown', 'touchstart', 'pointerdown',
+                          'mousedown', 'scroll', 'wheel', 'mousemove', 'focus', 'visibilitychange'];
+          events.forEach(function(ev) {{
+            try {{ pd.addEventListener(ev, tryPlay, true); }} catch (e) {{}}
+            try {{ window.addEventListener(ev, tryPlay, true); }} catch (e) {{}}
+            try {{ top_doc.addEventListener(ev, tryPlay, true); }} catch (e) {{}}
+          }});
+
+          // Polling retry — every 400ms for up to 2 minutes
+          let tries = 0;
+          const poll = setInterval(function() {{
+            tries++;
+            tryPlay();
+            if (!audio.paused || tries > 300) clearInterval(poll);
+          }}, 400);
+        }}
+
+        // Sync UI on every state change
+        audio.addEventListener('play', renderBtn);
+        audio.addEventListener('pause', renderBtn);
+
+        renderBtn();
       }})();
     </script>
     """, height=0, width=0)
