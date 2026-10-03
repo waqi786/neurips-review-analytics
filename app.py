@@ -71,42 +71,35 @@ st.markdown("""
 
     /* Center the st.image component */
     [data-testid="stImage"] { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; margin: 0 auto !important; }
-    [data-testid="stImage"] img { max-width: 180px !important; width: auto !important; border-radius: 12px !important; border: 1.5px solid var(--line) !important; display: block !important; margin: 0 auto !important; }
+    [data-testid="stImage"] img { max-width: 220px !important; width: auto !important; height: auto !important; aspect-ratio: 1 / 1 !important; object-fit: contain !important; border-radius: 12px !important; border: 1.5px solid var(--line) !important; display: block !important; margin: 0 auto !important; cursor: zoom-in !important; }
 
-    /* ============ STREAMLIT BUILT-IN FULLSCREEN BUTTON — make icon WHITE ============ */
+    /* ============ REMOVE STREAMLIT'S NATIVE FULLSCREEN BUTTON ENTIRELY ============ */
     [data-testid="stImage"] button,
+    [data-testid="stImage"] > div > button,
+    [data-testid="stImage"] > div > div > button,
     [data-testid="StyledFullScreenButton"],
     button[title="View fullscreen"],
-    button[title="Fullscreen"] {
-        background: #0f172a !important;
-        background-color: #0f172a !important;
+    button[title="Fullscreen"],
+    button[aria-label="View fullscreen"],
+    button[aria-label="Fullscreen"],
+    button[aria-label="Full screen"],
+    [class*="FullScreenButton"],
+    [class*="fullscreenButton"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
         border: none !important;
-        opacity: 0.85 !important;
-        border-radius: 8px !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
     }
-    [data-testid="stImage"] button:hover,
-    [data-testid="StyledFullScreenButton"]:hover,
-    button[title="View fullscreen"]:hover {
-        background: #334155 !important;
-        background-color: #334155 !important;
-        opacity: 1 !important;
-    }
-    [data-testid="stImage"] button svg,
-    [data-testid="stImage"] button svg *,
-    [data-testid="StyledFullScreenButton"] svg,
-    [data-testid="StyledFullScreenButton"] svg *,
-    button[title="View fullscreen"] svg,
-    button[title="View fullscreen"] svg * {
-        fill: #ffffff !important;
-        color: #ffffff !important;
-        stroke: #ffffff !important;
-        -webkit-text-fill-color: #ffffff !important;
-    }
-    [data-testid="stImage"] button svg path,
-    [data-testid="StyledFullScreenButton"] svg path {
-        fill: #ffffff !important;
-        stroke: #ffffff !important;
-    }
+    /* Ensure image container doesn't reserve space for the hidden button */
+    [data-testid="stImage"] > div { position: relative !important; }
 
     .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px 16px 2px; margin-bottom: 16px; border-bottom: 1.5px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 10px; }
@@ -290,64 +283,97 @@ def esc(x):
 
 
 def _install_viewer_js():
-    """Install fullscreen viewer + click handlers once per page load."""
+    """Install custom zoom viewer + click handlers. Also force-removes Streamlit's native fullscreen button."""
     components.html("""
     <html><head><style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;height:0;}</style></head><body>
     <script>
       (function() {
         var pd = window.parent.document;
-        if (pd.getElementById('fsViewerGlobal')) return;
 
-        var v = pd.createElement('div');
-        v.id = 'fsViewerGlobal';
-        v.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#ffffff;z-index:2147483647;align-items:center;justify-content:center;';
+        // ---------- 1) Kill Streamlit native fullscreen button ----------
+        function killNativeFS() {
+          var sels = [
+            '[data-testid="StyledFullScreenButton"]',
+            '[data-testid="stImage"] button',
+            'button[title="View fullscreen"]',
+            'button[title="Fullscreen"]',
+            'button[aria-label="View fullscreen"]',
+            'button[aria-label="Fullscreen"]',
+            'button[aria-label="Full screen"]',
+            '[class*="FullScreenButton"]',
+            '[class*="fullscreenButton"]'
+          ];
+          sels.forEach(function(s) {
+            pd.querySelectorAll(s).forEach(function(el) {
+              el.style.setProperty('display', 'none', 'important');
+              el.style.setProperty('visibility', 'hidden', 'important');
+              el.style.setProperty('opacity', '0', 'important');
+              el.style.setProperty('pointer-events', 'none', 'important');
+              el.style.setProperty('width', '0', 'important');
+              el.style.setProperty('height', '0', 'important');
+              el.remove();
+            });
+          });
+        }
+        killNativeFS();
 
-        var img = pd.createElement('img');
-        img.id = 'fsImgGlobal';
-        img.style.cssText = 'max-width:88vw;max-height:88vh;border-radius:10px;box-shadow:0 12px 48px rgba(15,23,42,.35);background:#ffffff;display:block;';
+        // ---------- 2) Custom zoom viewer ----------
+        if (!pd.getElementById('fsViewerGlobal')) {
+          var v = pd.createElement('div');
+          v.id = 'fsViewerGlobal';
+          v.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,255,255,0.98);z-index:2147483647;align-items:center;justify-content:center;cursor:zoom-out;';
 
-        var cb = pd.createElement('button');
-        cb.id = 'fsCloseGlobal';
-        cb.type = 'button';
-        cb.setAttribute('aria-label', 'Close');
-        cb.textContent = '\u2715';
-        cb.style.cssText = 'position:fixed;top:76px;right:14px;width:52px;height:52px;border-radius:50%;border:none;background:#0f172a;font-size:24px;font-weight:900;font-family:Inter,-apple-system,sans-serif;cursor:pointer;line-height:1;box-shadow:0 6px 20px rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:0;z-index:2147483647;transition:background .15s ease;';
-        cb.style.setProperty('color', '#ffffff', 'important');
-        cb.style.setProperty('-webkit-text-fill-color', '#ffffff', 'important');
+          var img = pd.createElement('img');
+          img.id = 'fsImgGlobal';
+          img.style.cssText = 'max-width:min(1024px,88vw);max-height:min(1024px,88vh);width:auto;height:auto;border-radius:10px;box-shadow:0 12px 48px rgba(15,23,42,.35);background:#ffffff;display:block;object-fit:contain;';
 
-        cb.onmouseenter = function() { cb.style.background = '#334155'; };
-        cb.onmouseleave = function() { cb.style.background = '#0f172a'; };
-        cb.onclick = function(e) { e.stopPropagation(); v.style.display = 'none'; };
+          var cb = pd.createElement('button');
+          cb.id = 'fsCloseGlobal';
+          cb.type = 'button';
+          cb.setAttribute('aria-label', 'Close');
+          cb.textContent = '\\u2715';
+          cb.style.cssText = 'position:fixed;top:76px;right:14px;width:52px;height:52px;border-radius:50%;border:none;background:#0f172a;font-size:24px;font-weight:900;font-family:Inter,-apple-system,sans-serif;cursor:pointer;line-height:1;box-shadow:0 6px 20px rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:0;z-index:2147483647;transition:background .15s ease;';
+          cb.style.setProperty('color', '#ffffff', 'important');
+          cb.style.setProperty('-webkit-text-fill-color', '#ffffff', 'important');
 
-        v.appendChild(img);
-        v.appendChild(cb);
-        v.onclick = function(e) { if (e.target === v) v.style.display = 'none'; };
-        pd.body.appendChild(v);
+          cb.onmouseenter = function() { cb.style.background = '#334155'; };
+          cb.onmouseleave = function() { cb.style.background = '#0f172a'; };
+          cb.onclick = function(e) { e.stopPropagation(); v.style.display = 'none'; };
 
-        pd.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape' && v.style.display === 'flex') v.style.display = 'none';
-        });
+          v.appendChild(img);
+          v.appendChild(cb);
+          v.onclick = function(e) { if (e.target === v || e.target === img) v.style.display = 'none'; };
+          pd.body.appendChild(v);
 
-        window.__openFs__ = function(src) {
-          img.src = src;
-          v.style.display = 'flex';
-        };
+          pd.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && v.style.display === 'flex') v.style.display = 'none';
+          });
 
+          window.__openFs__ = function(src) {
+            img.src = src;
+            v.style.display = 'flex';
+          };
+        }
+
+        // ---------- 3) Attach click-to-zoom on every thumbnail ----------
         function attach() {
+          killNativeFS();
           pd.querySelectorAll('[data-testid="stImage"] img').forEach(function(el) {
             if (el.dataset.fsAttached === '1') return;
             el.dataset.fsAttached = '1';
             el.style.cursor = 'zoom-in';
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function(ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
               var src = el.currentSrc || el.src;
               if (!src) return;
               window.__openFs__(src);
-            });
+            }, true);
           });
         }
         attach();
-        new MutationObserver(attach).observe(pd.body, { childList: true, subtree: true });
-        setInterval(attach, 900);
+        new MutationObserver(function() { attach(); }).observe(pd.body, { childList: true, subtree: true });
+        setInterval(attach, 500);
       })();
     </script>
     </body></html>
@@ -355,7 +381,7 @@ def _install_viewer_js():
 
 
 def show_image(opt):
-    """Centered image via st.image (reliable, native)."""
+    """Centered image via st.image. Click opens custom 1024x1024 zoom viewer."""
     try:
         node_id = opt.get("node_id")
         if not node_id:
